@@ -1,0 +1,9 @@
+C:\Users\koko\source\repos\New_MFJ\My_Future_Job\CustomerLibrary\bin\Debug\netstandard2.0\CustomerLibrary.deps.json
+C:\Users\koko\source\repos\New_MFJ\My_Future_Job\CustomerLibrary\bin\Debug\netstandard2.0\CustomerLibrary.dll
+C:\Users\koko\source\repos\New_MFJ\My_Future_Job\CustomerLibrary\obj\Debug\netstandard2.0\CustomerLibrary.AssemblyInfoInputs.cache
+C:\Users\koko\source\repos\New_MFJ\My_Future_Job\CustomerLibrary\obj\Debug\netstandard2.0\CustomerLibrary.AssemblyInfo.cs
+C:\Users\koko\source\repos\New_MFJ\My_Future_Job\CustomerLibrary\bin\Debug\netstandard2.0\CustomerLibrary.pdb
+C:\Users\koko\source\repos\New_MFJ\My_Future_Job\CustomerLibrary\obj\Debug\netstandard2.0\CustomerLibrary.csproj.CoreCompileInputs.cache
+C:\Users\koko\source\repos\New_MFJ\My_Future_Job\CustomerLibrary\obj\Debug\netstandard2.0\CustomerLibrary.dll
+C:\Users\koko\source\repos\New_MFJ\My_Future_Job\CustomerLibrary\obj\Debug\netstandard2.0\CustomerLibrary.pdb
+C:\Users\koko\source\repos\New_MFJ\My_Future_Job\CustomerLibrary\obj\Debug\netstandard2.0\CustomerLibrary.csprojAssemblyReference.cache

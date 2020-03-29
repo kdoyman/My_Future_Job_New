@@ -1,0 +1,368 @@
+﻿@page "/customers"
+@using System.Net.Http
+@using System.Net.Http.Headers
+@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Authentication
+@using Serilog
+
+@inject HttpClient Http
+@inject IJSRuntime JsRuntime
+@inject IHttpContextAccessor _httpContextAccessor
+@inject NavigationManager NavigationManager
+
+<h1> ASP.NET Core BLAZOR CRUD demo for Customers</h1>
+<hr />
+<table width="100%" style="background:#05163D;color:honeydew">
+    <tr>
+        <td width="20"> </td>
+        <td>
+            @if (showAddrow == true)
+            {<h2> Edit Customer Details </h2>}
+        </td>
+        <td> </td>
+        <td align="right">
+            <RadzenButton Text="Add New Customer" Click="AddNewCustomer"></RadzenButton>
+        </td>
+        <td width="10"> </td>
+    </tr>
+    <tr>
+        <td colspan="2"></td>
+    </tr>
+</table>
+<hr />
+@if (showAddrow == true)
+{
+    <EditForm Model="@custObj" OnValidSubmit="@AddCustomer">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <p>
+            <label for="CompanyName">CompanyName:</label>
+            <InputText id="CompanyName" @bind-Value="custObj.CompanyName" />
+        </p>
+        <p>
+            <label for="ContactName">ContactName&nbsp;&nbsp;&nbsp;&nbsp;:</label>
+            <InputText id="ContactName" @bind-Value="custObj.ContactName" />
+        </p>
+        <p>
+            <label for="Address">Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</label>
+            <InputText id="Address" @bind-Value="custObj.Address" />
+        </p>
+        <p>
+            <label for="City">City&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</label>
+            <InputText id="City" @bind-Value="custObj.City" />
+        </p>
+        <p>
+            <label for="Region">Region&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</label>
+            <InputText id="Region" @bind-Value="custObj.Region" />
+        </p>
+        <p>
+            <label for="PostalCode">PostalCode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</label>
+            <InputText id="PostalCode" @bind-Value="custObj.PostalCode" />
+        </p>
+        <p>
+            <label for="Country">Country&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</label>
+            <InputText id="Country" @bind-Value="custObj.Country" />
+        </p>
+        <p>
+            <label for="Phone">Phone&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</label>
+            <InputText id="Phone" @bind-Value="custObj.Phone" />
+        </p>
+
+        <BSButton type="submit" Color="Color.Success">Save</BSButton>
+        <BSButton OnClick="AddNewCustomer" Color="Color.Danger">Cancel</BSButton>
+    </EditForm>
+}
+<table width="100%" style="background:#0A2464;color:honeydew">
+    <tr>
+        <td width="20"> </td>
+        <td>
+            <h2>Customer List</h2>
+        </td>
+
+    </tr>
+    <tr>
+        <td colspan="2"></td>
+    </tr>
+</table>
+
+@if (custs == null)
+{
+    <p><em>Loading...</em></p>
+
+    <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" />
+    <br />
+    <form>Welcome to Blazor ! We are waiting to add your first <span style="color:blue">customer</span> !</form>
+}
+else
+{
+    <form>
+        <label for="CustomersPerPage">Choose the number of customers to be displayed per page:</label>
+        <select id="CustomersPerPage" name="CustomersPerPage" @onchange="@DoStuff">
+            <option value=" "> </option>
+            <option value="five">5</option>
+            <option value="ten">10</option>
+            <option value="fifteen">15</option>
+            <option value="twenty">20</option>
+        </select>
+        <p>Currently: @CustomersPerPage Customers per page</p>
+    </form>
+
+    <RadzenGrid AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" PageSize="@CustomersPerPage"
+                AllowSorting="true" Data="@custs" TItem="Customer" ColumnWidth="150px" RowSelect="RowSelect">
+        <Columns>
+            <RadzenGridColumn TItem="Customer" Property="CompanyName" Title="CompanyName"></RadzenGridColumn>
+            <RadzenGridColumn TItem="Customer" Property="ContactName" Title="ContactName"></RadzenGridColumn>
+            <RadzenGridColumn TItem="Customer" Property="Country" Title="Country"></RadzenGridColumn>
+            <RadzenGridColumn TItem="Customer" Property="Address" Title="Address"></RadzenGridColumn>
+            <RadzenGridColumn TItem="Customer" Property="City" Title="City"></RadzenGridColumn>
+            <RadzenGridColumn TItem="Customer" Property="Region" Title="Region"></RadzenGridColumn>
+            <RadzenGridColumn TItem="Customer" Property="PostalCode" Title="PostalCode"></RadzenGridColumn>
+            <RadzenGridColumn TItem="Customer" Property="Phone" Title="Phone"></RadzenGridColumn>
+            <RadzenGridColumn TItem="Customer">
+                <Template Context="data">
+                    <button class="btn btn-primary" @onclick="@(async () => await EditCustomer(data.Id))" style="width:50px;">Edit</button>
+                    <button class="btn btn-danger" @onclick="@(async () => await DeleteCustomer(data.Id))" style="width:70px;">Delete</button>
+                </Template>
+            </RadzenGridColumn>
+
+
+        </Columns>
+    </RadzenGrid>
+    @if (active)
+    {
+        <BSPagination Alignment="Alignment.Right">
+            <BSPaginationItem>
+                <BSButton Color="Color.Light" OnClick="onclickfirst">First</BSButton>
+            </BSPaginationItem>
+            <BSPaginationItem>
+                <BSButton Color="Color.Light" OnClick="onclickbw">&lt;&lt;</BSButton>
+            </BSPaginationItem>
+            <BSPaginationItem>
+                <BSButton Color="Color.Light" OnClick="onclicknext">&gt;&gt;</BSButton>
+            </BSPaginationItem>
+            <BSPaginationItem>
+                <BSButton Color="Color.Light" OnClick="onclicklast">Last</BSButton>
+            </BSPaginationItem>
+            <BSPaginationItem>
+                <BSBasicInput Id="Pagenumber" InputType="InputType.Number" min="1" max="@MaxPage" PlaceHolder="@Pagenumber" @bind-Value="@Pagenumber" @onclick="@setpage" @onfocusout="@setpage" @onkeydown="@setpage" @onkeyup="@setpage" />
+            </BSPaginationItem>
+            <BSPaginationItem>
+                <h2>of @MaxPage</h2>
+            </BSPaginationItem>
+        </BSPagination>
+    }
+    else
+    {
+        <BSPagination Alignment="Alignment.Right">
+            <BSPaginationItem>
+                <h3>Page @MaxPage of @MaxPage</h3>
+            </BSPaginationItem>
+        </BSPagination>
+    }
+}
+
+@code {
+    private Customer[] custs;
+    string baseUrl = "https://localhost:44311/";
+    Customer custObj = new Customer();
+
+    string ids = "0";
+    bool showAddrow = false;
+
+    bool loadFailed;
+
+    Customer SelectedCustomer = null;
+    public static int CustomersPerPage { get; set; } = 5;
+    public static int Pagenumber { get; set; } = 1;
+    public static int OldPage;
+    bool state = false;
+
+    private long custcountl;
+    private bool active = true;
+    public int MaxPage
+    {
+        get
+        {
+            if (Math.Ceiling((double)(custcountl) / CustomersPerPage) <= 1) { active = false; }
+            return Convert.ToInt32(Math.Ceiling(Convert.ToDouble(custcountl) / CustomersPerPage));
+        }
+
+    }
+
+    void RowSelect(Customer c)
+    {
+        SelectedCustomer = c;
+    }
+
+    void DoStuff(ChangeEventArgs e)
+    {
+        switch (e.Value)
+        {
+            case "five": if (CustomersPerPage == 5) { break; } else { CustomersPerPage = 5; state = true; break; }
+            case "ten": if (CustomersPerPage == 10) { break; } else { CustomersPerPage = 10; state = true; break; }
+            case "fifteen": if (CustomersPerPage == 15) { break; } else { CustomersPerPage = 15; state = true; break; }
+            case "twenty": if (CustomersPerPage == 20) { break; } else { CustomersPerPage = 20; state = true; break; }
+            default:
+                break;
+        }
+        Console.WriteLine("It is definitely: " + CustomersPerPage);
+        if (state)
+        {
+            NavigationManager.NavigateTo("customers", true);
+        }
+        else
+        {
+            NavigationManager.NavigateTo("customers");
+        }
+    }
+
+    public void setpage()
+    {
+
+        Pagenumber = Pagenumber;
+        if (Pagenumber != OldPage)
+        {
+            NavigationManager.NavigateTo("customers", true);
+        }
+    }
+
+    protected void onclick(MouseEventArgs e)
+    {
+        if (Pagenumber != OldPage) {
+            NavigationManager.NavigateTo("customers", true);
+        }
+    }
+
+    protected void onclicklast(MouseEventArgs e)
+    {
+        Pagenumber = MaxPage;
+        if (Pagenumber != OldPage)
+        {
+            NavigationManager.NavigateTo("customers", true);
+        }
+    }
+
+    protected void onclickfirst(MouseEventArgs e)
+    {
+        Pagenumber = 1;
+        if (Pagenumber != OldPage)
+        {
+            NavigationManager.NavigateTo("customers", true);
+        }
+    }
+
+    protected void onclicknext(MouseEventArgs e)
+    {
+        if (Pagenumber != MaxPage)
+        {
+            Pagenumber = Pagenumber + 1;
+            NavigationManager.NavigateTo("customers", true);
+        }
+    }
+
+    protected void onclickbw(MouseEventArgs e)
+    {
+        if (Pagenumber != 1)
+        {
+            Pagenumber--;
+            NavigationManager.NavigateTo("customers", true);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            ids = "0";
+            OldPage = Pagenumber;
+            var accessToken = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
+            if (accessToken != null)
+            {
+                if(Http.DefaultRequestHeaders.Authorization == null)
+                {
+                    Http.DefaultRequestHeaders.Add("Authorization", "Bearer " + accessToken);
+                }
+            }
+
+            await load();
+
+        }
+        catch (Exception)
+        {
+            Log.Information("Failed to Initialize customers");
+            throw;
+        }
+
+    }
+
+    protected async Task load()
+    {
+        custcountl = await Http.GetJsonAsync<long>($"{baseUrl}api/customers/GetCount");
+        if (Pagenumber > MaxPage && MaxPage != 0) { Pagenumber = MaxPage; }
+        else if (Pagenumber < 1) { Pagenumber = 1; }
+        custs = await Http.GetJsonAsync<Customer[]>($"{baseUrl}api/customers/getall?pagenum={Pagenumber}&customersPerPage={CustomersPerPage}");
+    }
+
+    void AddNewCustomer()
+    {
+        ids = "0";
+        if (showAddrow == false) { showAddrow = true; } else { showAddrow = false; }
+        custObj = new Customer();
+    }
+    // Add New Customer Details Method
+    protected async Task AddCustomer()
+    {
+        if (ids == "0")
+
+        {
+            await Http.SendJsonAsync(HttpMethod.Post, $"{baseUrl}api/customers/", custObj);
+            await load();
+        }
+        else
+        {
+            await Http.SendJsonAsync(HttpMethod.Put, $"{baseUrl}api/customers/" + custObj.Id, custObj);
+            await load();
+        }
+
+        showAddrow = false;
+    }
+    // Edit Method
+    protected async Task EditCustomer(string CustomerID)
+    {
+        showAddrow = true;
+
+        ids = "1";
+        try
+        {
+            loadFailed = false;
+            ids = CustomerID.ToString();
+            custObj = await Http.GetJsonAsync<Customer>
+                ($"{baseUrl}api/customers/" + CustomerID);
+
+            string s = custObj.Id;
+
+            showAddrow = true;
+
+        }
+        catch (Exception ex)
+        {
+            loadFailed = true;
+            Log.Fatal(ex, "Failed to edit customer {CustomerId}", CustomerID);
+
+        }
+    }
+    // Delte Method
+    protected async Task DeleteCustomer(string CustomerID)
+    {
+        showAddrow = false;
+        bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this customer?");
+        if (confirmed)
+        {
+            ids = CustomerID.ToString();
+            await Http.DeleteAsync($"{baseUrl}api/customers/" + CustomerID);
+
+            await load();
+        }
+    }
+
+}
