@@ -14,7 +14,7 @@
     <PackageReference Include="MongoDB.Embedded" Version="2.4.6.23000" />
     <PackageReference Include="MongoDB.Testing" Version="1.0.0-beta-002" />
     <PackageReference Include="Moq" Version="4.13.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="xunit" Version="2.4.0" />
     <PackageReference Include="Xunit.Microsoft.VisualStudio.TestTools.UnitTesting" Version="1.0.0-beta-1011" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
